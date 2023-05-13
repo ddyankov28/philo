@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/02 13:46:22 by ddyankov          #+#    #+#             */
-/*   Updated: 2023/05/05 11:35:01 by ddyankov         ###   ########.fr       */
+/*   Updated: 2023/05/12 10:40:56 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ void    set_mutexes(t_struct *table)
     int i;
 
     i = 0;
+    
     table->mut_forks = malloc(sizeof(pthread_mutex_t) * table->num_philo);
     if (!table->mut_forks)
         ft_free(table, "Failed to allocate memory for forks mutexes");
@@ -37,13 +38,10 @@ void    create_threads(t_struct *table)
     int i;
 
     i = 0;
-    pthread_mutex_lock(&table->mut_dead);
     while (i < table->num_philo)
 	{
 		if (pthread_create(&table->philo[i].thread, NULL, &routine, (void *)&table->philo[i]) != 0)
             ft_free(table, "Failed to create threads\n");
-        if (table->num_philo % 2 == 1)
-            ft_usleep(500,table);
         i++;
 	}
     i = 0;

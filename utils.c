@@ -6,13 +6,11 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/16 09:18:03 by ddyankov          #+#    #+#             */
-/*   Updated: 2023/05/04 16:52:05 by ddyankov         ###   ########.fr       */
+/*   Updated: 2023/05/13 10:16:02 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-/* Return the elapsed time since Epoch 1.1.1970 */
 
 int	ft_strcmp(char *s1, char *s2)
 {
@@ -33,13 +31,20 @@ long long	get_time(t_struct *table)
 	return ((time.tv_sec * 1000) + (time.tv_usec / 1000));
 }
 
-void	ft_usleep(long long milisecs, t_struct *table)
+int	time_update(long long time_to_pass, t_struct *table)
 {
-	long long end;
+	long long curr_time;
 
-	end = get_time(table) + milisecs;
-	while (get_time(table) < end)
-		usleep(milisecs / 1000);
+	curr_time = get_time(table);
+	if (!is_alive(table->philo))
+		return (0);
+	while (get_time(table) - curr_time < time_to_pass)
+	{
+		usleep(10);
+		if (!is_alive(table->philo))
+			return (0);
+	}
+	return (1);
 }
 int	ft_atoi(const char *str, t_struct *table)
 {
@@ -68,4 +73,23 @@ int	ft_atoi(const char *str, t_struct *table)
 	if (str[a] != '\0')
 		ft_free(table, "Try only with integers");
 	return (result);
+}
+void		fifth_argument(t_struct *table)
+{
+	int	i;
+
+	i = 0;
+	if (table->meals_to_eat < 1)
+		return ;
+	while (i < table->num_philo)
+	{
+		if (table->philo[i].eat_count != table->meals_to_eat)
+			return ;
+		i++;
+	}
+	printf("TEST\n");
+	pthread_mutex_lock(&table->mut_print);
+	printf("%lld The program ends here ", get_time(table) - table->start_time);
+	printf("All have eaten %d times\n", table->meals_to_eat);
+	pthread_mutex_unlock(&table->mut_print);
 }
