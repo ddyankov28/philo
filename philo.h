@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/12 13:36:34 by ddyankov          #+#    #+#             */
-/*   Updated: 2023/05/13 10:11:23 by ddyankov         ###   ########.fr       */
+/*   Updated: 2023/05/14 13:12:07 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,6 @@ typedef struct s_philo
 	int			id;
 	int			left;
 	int			right;
-	int			eat_count;
-	int			done;
 	long long	last_eat;
 	pthread_t	thread;
 	struct s_struct	*table;
@@ -39,13 +37,14 @@ typedef struct s_struct
 	int			time_to_die;
 	int			time_to_eat;
 	int			time_to_sleep;
+	int			eat_count;
 	int			meals_to_eat;
-	int			dead;
+	int			end;
 	int			*forks;
 	long long	start_time;
 	t_philo		*philo;
 	pthread_mutex_t mut_print;
-	pthread_mutex_t mut_dead;
+	pthread_mutex_t mut_end;
 	pthread_mutex_t *mut_forks;
 }				t_struct;
 /* frees */
@@ -54,11 +53,9 @@ void			ft_free_no_message(t_struct *table);
 
 
 void			*routine(void *arg);
-void			set_mutexes(t_struct *table);
-void			create_threads(t_struct *table);
 
 /* utils */
-int	ft_atoi(const char *str, t_struct *table);
+int	ft_atoi(const char *str);
 int	ft_strcmp(char *s1, char *s2);
 long long	get_time(t_struct *table);
 int			time_update(long long time_to_pass, t_struct *table);

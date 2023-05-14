@@ -6,32 +6,44 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 09:16:05 by ddyankov          #+#    #+#             */
-/*   Updated: 2023/05/13 10:33:12 by ddyankov         ###   ########.fr       */
+/*   Updated: 2023/05/14 09:50:33 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int    is_alive(t_philo *p)
+int     check_if_eaten_enough(t_philo *p)
 {
-    pthread_mutex_lock(&p->table->mut_dead);
-    if (p->table->dead || p->eat_count == p->table->meals_to_eat)
+    pthread_mutex_lock(&p->table->mut_end);
+    if (p->table->eat_count / p->table->num_philo == p->table->meals_to_eat)
     {
-        p->done = 1;
-        pthread_mutex_unlock(&p->table->mut_dead);
+        p->table->end = 1;
+        pthread_mutex_unlock(&p->table->mut_end);
         return (0);
     }
-    if (get_time(p->table) - p->last_eat >= p->table->time_to_die && !p->table->dead)
+    pthread_mutex_unlock(&p->table->mut_end);
+    return (1);
+}
+
+int     is_alive(t_philo *p)
+{
+    /*pthread_mutex_lock(&p->table->mut_eatcount);
+    if (p->eat_count == p->table->meals_to_eat)
     {
-        pthread_mutex_unlock(&p->table->mut_dead);
+        print_status(p, "finish");
+        pthread_mutex_unlock(&p->table->mut_eatcount);
+        return (0);
+    }
+    pthread_mutex_unlock(&p->table->mut_eatcount);*/
+    pthread_mutex_lock(&p->table->mut_end);
+    if (get_time(p->table) - p->last_eat >= p->table->time_to_die)
+    {
         print_status(p, "died");
-        pthread_mutex_lock(&p->table->mut_dead);
-        p->table->dead = 1;
-        p->done = 1;
-        pthread_mutex_unlock(&p->table->mut_dead);
-        return (0);
+        p->table->end = 1;
+        pthread_mutex_unlock(&p->table->mut_end);
+        return(0);
     }
-    pthread_mutex_unlock(&p->table->mut_dead);
+    pthread_mutex_unlock(&p->table->mut_end);
     return (1);
 }
 
@@ -80,8 +92,6 @@ int try_eat(t_philo *p, int odd_or_even)
 {
     p->table->forks[p->right] = p->id;
     p->table->forks[p->left] = p->id;
-    //printf("PHILO %d LEFT %d  and RIGHT %d\n",p->id, p->left, p->right);
-    //printf("PHILO %d LEFT %d  and RIGHT %d\n",p->id, p->table->forks[p->left], p->table->forks[p->right]);
     if (odd_or_even == 0)
     {
         pthread_mutex_unlock(&p->table->mut_forks[p->left]);
@@ -97,10 +107,12 @@ int try_eat(t_philo *p, int odd_or_even)
     print_status(p, "fork");
     print_status(p, "fork");
     print_status(p, "eat");
+    p->table->eat_count++;
     p->last_eat = get_time(p->table);
     if (!time_update(p->table->time_to_eat, p->table))
         return (0);
-    p->eat_count++;
+    if (!check_if_eaten_enough(p))
+        return (0);
     return (1);
 }
 
@@ -164,10 +176,9 @@ int     start(t_philo *p)
 
 void    print_status(t_philo *p, char *status)
 {
-    pthread_mutex_lock(&p->table->mut_dead);
     pthread_mutex_lock(&p->table->mut_print);
-    if (!p->done && !p->table->dead && p->eat_count != p->table->meals_to_eat)
-    {
+    if (!p->table->end)
+    {   
         if (ft_strcmp(status ,"fork") == 0)
             printf("%lld %d has taken a fork\n", get_time(p->table) - p->table->start_time, p->id);
         else if (ft_strcmp(status ,"eat") == 0)
@@ -180,27 +191,17 @@ void    print_status(t_philo *p, char *status)
             printf("%lld %d died\n", get_time(p->table) - p->table->start_time, p->id);
     }
     pthread_mutex_unlock(&p->table->mut_print);
-    pthread_mutex_unlock(&p->table->mut_dead);
 }
 void    *routine(void *arg)
 {
     t_philo *p;
     p = (t_philo *) arg;
-    while (!p->done)
+    while (p->table->eat_count / p->table->num_philo != p->table->meals_to_eat)
     {
-        if (p->eat_count == p->table->meals_to_eat)
-            break ;
-        pthread_mutex_lock(&p->table->mut_dead);
-        if (p->table->dead)
-        {
-            pthread_mutex_unlock(&p->table->mut_dead);
+        if (p->table->end == 1)
             return NULL;            
-        }
-        pthread_mutex_unlock(&p->table->mut_dead);
         if (!start(p))
             return (NULL);
     }
     return NULL;
 }
-
-
