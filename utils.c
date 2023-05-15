@@ -6,46 +6,56 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/16 09:18:03 by ddyankov          #+#    #+#             */
-/*   Updated: 2023/05/14 13:12:00 by ddyankov         ###   ########.fr       */
+/*   Updated: 2023/05/15 17:47:00 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	ft_strcmp(char *s1, char *s2)
+void	ft_free(t_struct *table, char *message)
 {
 	int	i;
 
-	i = 0;
-	while (s1[i] && s2[i] && s1[i] == s2[i])
-		i++;
-	return (s1[i] - s2[i]);
+	i = -1;
+	if (message)
+		printf("%s\n", message);
+	if (table->philo)
+		free(table->philo);
+	if (table->forks)
+		free(table->forks);
+	if (table->mut_forks)
+	{
+		while (++i < table->num_philo)
+			pthread_mutex_destroy(&table->mut_forks[i]);
+	}
+	if (table->mut_forks)
+		free(table->mut_forks);
+	pthread_mutex_destroy(&table->mut_print);
+	pthread_mutex_destroy(&table->mut_end);
+	if (table)
+		free(table);
 }
 
-long long	get_time(t_struct *table)
+long long	get_time(void)
 {
 	struct timeval	time;
 
-	if (gettimeofday(&time, NULL) == -1)
-		ft_free(table, "Error by function gettimeofday");
+	gettimeofday(&time, NULL);
 	return ((time.tv_sec * 1000) + (time.tv_usec / 1000));
 }
 
 int	time_update(long long time_to_pass, t_struct *table)
 {
-	long long curr_time;
+	long long	curr_time;
 
-	curr_time = get_time(table);
+	curr_time = get_time();
 	if (!is_alive(table->philo))
 		return (0);
-	while (get_time(table) - curr_time < time_to_pass)
-	{
+	while (get_time() - curr_time < time_to_pass)
 		usleep(100);
-		if (!is_alive(table->philo))
-			return (0);
-	}
 	return (1);
 }
+
 int	ft_atoi(const char *str)
 {
 	long	result;
@@ -74,7 +84,8 @@ int	ft_atoi(const char *str)
 		return (0);
 	return (result);
 }
-void		fifth_argument(t_struct *table)
+
+void	fifth_argument(t_struct *table)
 {
 	int	i;
 
@@ -83,10 +94,11 @@ void		fifth_argument(t_struct *table)
 		return ;
 	while (i < table->num_philo)
 	{
-		if (table->eat_count / table->num_philo != table->meals_to_eat)
+		if (table->philo[i].eat_count != table->meals_to_eat)
 			return ;
 		i++;
 	}
-	printf("%lld The program ends here ", get_time(table) - table->start_time);
+	printf("%lld ⛔️⛔️⛔️The program ", get_time() - table->start_t);
+	printf("ends here⛔️⛔️⛔️ ");
 	printf("All have eaten %d times\n", table->meals_to_eat);
 }
