@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/12 13:38:02 by ddyankov          #+#    #+#             */
-/*   Updated: 2023/05/15 15:06:54 by ddyankov         ###   ########.fr       */
+/*   Updated: 2023/05/29 18:29:23 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,10 +46,12 @@ int	set_mutexes(t_struct *table)
 		if (pthread_mutex_init(&table->mut_forks[i], NULL) != 0)
 			return (ft_free(table, "Failed to init forks mutexes"), 0);
 	}
-	if (pthread_mutex_init(&table->mut_print, NULL) != 0)
-		return (ft_free(table, "Failed to init print mutex"), 0);
 	if (pthread_mutex_init(&table->mut_end, NULL) != 0)
 		return (ft_free(table, "Failed to init dead mutex"), 0);
+	if (!table->num_philo || !table->t_to_die || !table->t_to_eat
+		|| !table->t_to_sleep || table->meals_to_eat < -1
+		|| table->meals_to_eat == 0)
+		return (ft_free(table, "Invalid arguments"), 0);
 	return (1);
 }
 
@@ -65,9 +67,6 @@ int	set_table(t_struct *table, char **av)
 		table->meals_to_eat = ft_atoi(av[5]);
 	else
 		table->meals_to_eat = -1;
-	if (!table->num_philo || !table->t_to_die || !table->t_to_eat
-		|| !table->t_to_sleep)
-		return (ft_free(table, "Invalid arguments"), 0);
 	table->end = 0;
 	table->start_t = get_time();
 	table->philo = malloc(sizeof(t_philo) * table->num_philo);
@@ -103,7 +102,7 @@ int	main(int ac, char **av)
 	t_struct	*table;
 
 	if (ac < 5 || ac > 6)
-		return (printf("Invalind number of arguments!\n"), 1);
+		return (printf("Invalid number of arguments!\n"), 1);
 	table = malloc(sizeof(t_struct));
 	if (!table)
 		return (printf("Failed to allocate memory for struct\n"), 1);

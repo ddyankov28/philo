@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/12 13:36:34 by ddyankov          #+#    #+#             */
-/*   Updated: 2023/05/15 17:46:46 by ddyankov         ###   ########.fr       */
+/*   Updated: 2023/05/29 16:33:49 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ typedef struct s_struct
 	int				*forks;
 	long long		start_t;
 	t_philo			*philo;
-	pthread_mutex_t	mut_print;
 	pthread_mutex_t	mut_end;
 	pthread_mutex_t	*mut_forks;
 }					t_struct;

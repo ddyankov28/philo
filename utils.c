@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/16 09:18:03 by ddyankov          #+#    #+#             */
-/*   Updated: 2023/05/15 17:47:00 by ddyankov         ###   ########.fr       */
+/*   Updated: 2023/05/29 17:32:25 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,8 @@ void	ft_free(t_struct *table, char *message)
 	{
 		while (++i < table->num_philo)
 			pthread_mutex_destroy(&table->mut_forks[i]);
-	}
-	if (table->mut_forks)
 		free(table->mut_forks);
-	pthread_mutex_destroy(&table->mut_print);
+	}
 	pthread_mutex_destroy(&table->mut_end);
 	if (table)
 		free(table);
@@ -46,13 +44,9 @@ long long	get_time(void)
 
 int	time_update(long long time_to_pass, t_struct *table)
 {
-	long long	curr_time;
-
-	curr_time = get_time();
 	if (!is_alive(table->philo))
 		return (0);
-	while (get_time() - curr_time < time_to_pass)
-		usleep(100);
+	usleep(time_to_pass * 1000);
 	return (1);
 }
 

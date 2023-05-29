@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 09:16:05 by ddyankov          #+#    #+#             */
-/*   Updated: 2023/05/15 17:47:51 by ddyankov         ###   ########.fr       */
+/*   Updated: 2023/05/29 16:36:00 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,14 +29,14 @@ int	sleep_think(t_philo *p)
 {
 	if (!is_alive(p))
 		return (0);
-	print_status(p, "sleep");
+	print_status(p, "is sleeping");
 	if (p->eat_count == p->table->meals_to_eat)
 		return (0);
 	if (!time_update(p->table->t_to_sleep, p->table))
 		return (0);
 	if (!is_alive(p))
 		return (0);
-	print_status(p, "think");
+	print_status(p, "is thinking");
 	if (!time_update(1, p->table))
 		return (0);
 	return (1);
@@ -58,9 +58,9 @@ int	try_eat(t_philo *p, int odd_or_even)
 	}
 	if (!is_alive(p))
 		return (0);
-	print_status(p, "fork");
-	print_status(p, "fork");
-	print_status(p, "eat");
+	print_status(p, "has taken a fork");
+	print_status(p, "has taken a fork");
+	print_status(p, "is eating");
 	p->last_eat = get_time();
 	if (!time_update(p->table->t_to_eat, p->table))
 		return (0);
